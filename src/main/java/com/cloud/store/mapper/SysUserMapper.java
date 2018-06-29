@@ -28,4 +28,6 @@ public interface SysUserMapper {
     int updateByPrimaryKeySelective(SysUser record);
 
     int updateByPrimaryKey(SysUser record);
+    SysUser selectByName(String name);
+    SysUser selectByTel(String Tel);
 }
