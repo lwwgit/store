@@ -1,10 +1,12 @@
 package com.cloud.store.controller;
 
 
-import com.cloud.store.service.SendMessageService;
+import com.cloud.store.domain.entity.Msg;
+import com.cloud.store.service.impl.SendMessageService;
 
 import com.cloud.store.validate.ImageCode;
 import com.cloud.store.validate.SmsCode;
+import com.github.qcloudsms.SmsSingleSenderResult;
 import com.github.qcloudsms.httpclient.HTTPException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +48,11 @@ public class ValidateCodeController {
     private static final Logger logger = LoggerFactory.getLogger(ValidateCodeController.class);
 
     private Random random = new Random();
+    /**
+     * @Author: jitdc
+     * @Date: 16:42 2018/6/29
+     * @Description: 图片验证码接口
+     */
     @GetMapping("/code/image")
     public void createCode(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ImageCode imageCode = createImageCode(request);
@@ -63,17 +70,41 @@ public class ValidateCodeController {
 //        //sendMessageService.sendMessage(mobile,smsCode1);
 //        System.out.println("手机验证码是："+smsCode1);
 //    }
-@GetMapping("/code/sms/{mobile}")
-public String createSmsCode(HttpServletRequest request, @PathVariable("mobile") String mobile) throws IOException, ServletRequestBindingException, HTTPException {
-    SmsCode smsCode1 = createSmsCode(request);
-    HttpSession session = request.getSession();
-    session.setAttribute(SESSION_KEY_SMS,smsCode1);
-    // String mobile = ServletRequestUtils.getRequiredStringParameter(request,"mobile");
-    //sendMessageService.sendMessage(mobile,smsCode1);
-    System.out.println("手机验证码是："+smsCode1.getCode());
-    String res ="{\"code\":200,\"message\":\"发送成功\"}";
-    return res;
-}
+    /**
+     * @Author: jitdc
+     * @Date: 16:42 2018/6/29
+     * @Description: 手机验证码接口
+     */
+    @GetMapping("/code/sms/{mobile}")
+    public String createSmsCode(HttpServletRequest request, @PathVariable("mobile") String mobile) throws IOException, ServletRequestBindingException, HTTPException {
+        SmsCode smsCode1 = createSmsCode(request);
+        HttpSession session = request.getSession();
+        session.setAttribute(SESSION_KEY_SMS,smsCode1);
+        //sendMessageService.sendMessage(mobile,smsCode1);
+        System.out.println("手机验证码是："+smsCode1.getCode());
+        String res ="{\"code\":200,\"message\":\"发送成功\"}";
+        return res;
+    }
+/**
+ * @Author: jitdc
+ * @Date: 16:36 2018/6/29
+ * @Description: 验证验证码是否正确
+ */
+    @GetMapping("/code/{sms}")
+    public Msg<?> checkSmsCode(HttpServletRequest request,@PathVariable("sms") String sms){
+        HttpSession session = request.getSession();
+        SmsCode smsCode = (SmsCode)session.getAttribute(SESSION_KEY_SMS);
+        if (smsCode.getCode().equals(sms)){
+            return new Msg<>(Msg.OK,"验证码正确",null);
+        }
+        else
+            return new Msg<>(Msg.ERROR,"验证码错误",null);
+    }
+    /**
+     * @Author: jitdc
+     * @Date: 16:41 2018/6/29
+     * @Description: 生成手机验证码
+     */
     private SmsCode createSmsCode(HttpServletRequest request){
         String smsCode="";
         for (int i=0;i<4;i++) {
@@ -82,7 +113,11 @@ public String createSmsCode(HttpServletRequest request, @PathVariable("mobile") 
         }
         return  new SmsCode(smsCode,60);
     }
-
+    /**
+     * @Author: jitdc
+     * @Date: 16:41 2018/6/29
+     * @Description: 生成图形验证码
+     */
     private ImageCode  createImageCode(HttpServletRequest request) {
         // BufferedImage类是具有缓冲区的Image类,Image类是用于描述图像信息的类
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_BGR);

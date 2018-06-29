@@ -1,4 +1,4 @@
-package com.cloud.store.service;
+package com.cloud.store.service.impl;
 
 import com.github.qcloudsms.SmsSingleSender;
 import com.github.qcloudsms.SmsSingleSenderResult;

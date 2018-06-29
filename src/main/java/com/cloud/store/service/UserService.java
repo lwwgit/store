@@ -1,34 +1,41 @@
 package com.cloud.store.service;
 
-
-
 import com.cloud.store.domain.entity.SysUser;
-import com.cloud.store.mapper.SysUserMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-@Service
-public class UserService {
-    @Autowired
-    private SysUserMapper sysUserMapper;
-    public int insert(SysUser user){
-        int insert = sysUserMapper.insert(user);
-        return  insert;
-    }
-    public int updateTel(SysUser user){
-        int i = sysUserMapper.updateByPrimaryKey(user);
-        return i;
-    }
-    public SysUser selectByName(String name){
-        SysUser sysUser = sysUserMapper.selectByName(name);
-        return sysUser;
-    }
-    public  SysUser selectByTel(String tel){
-        SysUser sysUser = sysUserMapper.selectByTel(tel);
-        return sysUser;
-    }
-    public int updateAll(SysUser user){
-        int i = sysUserMapper.updateByPrimaryKey(user);
-        return i;
-    }
+/**
+ * @Author jitdc
+ * @Date Create in 15:45 2018/6/29
+ * @Description:
+ */
+public interface UserService {
+    /**
+     * @Author: jitdc
+     * @Date: 16:44 2018/6/29
+     * @Description: 添加一条用户数据
+     */
+    int insert(SysUser user);
+    /**
+     * @Author: jitdc
+     * @Date: 16:45 2018/6/29
+     * @Description: 修改手机号
+     */
+    int updateTel(SysUser user);
+    /**
+     * @Author: jitdc
+     * @Date: 16:45 2018/6/29
+     * @Description: 根据用户名获取一条用户数据
+     */
+    SysUser selectByName(String name);
+    /**
+     * @Author: jitdc
+     * @Date: 16:45 2018/6/29
+     * @Description: 根据手机号获取一条用户数据
+     */
+    SysUser selectByTel(String tel);
+    /**
+     * @Author: jitdc
+     * @Date: 16:46 2018/6/29
+     * @Description: 修改SysUser的数据
+     */
+    int updateAll(SysUser user);
 }
