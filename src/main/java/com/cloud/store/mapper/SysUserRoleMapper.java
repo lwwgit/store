@@ -19,7 +19,7 @@ public interface SysUserRoleMapper {
 
     List<SysUserRole> selectByExample(SysUserRoleExample example);
 
-    SysUserRole selectByPrimaryKey(Integer id);
+    List<SysUserRole> selectByPrimaryKey(Integer id);
 
     int updateByExampleSelective(@Param("record") SysUserRole record, @Param("example") SysUserRoleExample example);
 
