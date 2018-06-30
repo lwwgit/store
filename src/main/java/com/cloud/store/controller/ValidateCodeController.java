@@ -3,10 +3,8 @@ package com.cloud.store.controller;
 
 import com.cloud.store.domain.entity.Msg;
 import com.cloud.store.service.impl.SendMessageService;
-
 import com.cloud.store.validate.ImageCode;
 import com.cloud.store.validate.SmsCode;
-import com.github.qcloudsms.SmsSingleSenderResult;
 import com.github.qcloudsms.httpclient.HTTPException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +56,14 @@ public class ValidateCodeController {
         ImageCode imageCode = createImageCode(request);
         HttpSession session = request.getSession();
         session.setAttribute(SESSION_KEY_IMAGE,imageCode);
+        //获取session的Id
+        String sessionId = session.getId();
+        //判断session是不是新创建的
+        if (session.isNew()) {
+            System.out.println("生成验证码时session创建成功，session的id是："+sessionId);
+        }else {
+            System.out.println("生成验证码时服务器已经存在该session了，session的id是："+sessionId);
+        }
         ImageIO.write(imageCode.getImage(),"JPEG",response.getOutputStream());
     }
 

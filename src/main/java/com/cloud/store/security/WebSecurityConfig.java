@@ -1,9 +1,9 @@
 package com.cloud.store.security;
 
 
-
 import com.cloud.store.authentication.MyAuthenticationFailureHandler;
 import com.cloud.store.authentication.MyAuthenticationSuccessHandler;
+import com.cloud.store.filter.CorsControllerFilter;
 import com.cloud.store.filter.SmsCodeFilter;
 import com.cloud.store.filter.ValidateCodeFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +21,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.web.cors.CorsUtils;
 
 import javax.sql.DataSource;
 
@@ -28,13 +30,15 @@ import javax.sql.DataSource;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
     @Autowired
     private DataSource dataSource;
     @Autowired
     private UserDetailsService userDetailsService;
+    @Autowired
+    private CorsControllerFilter corsControllerFilter;
     @Autowired
     private MyAuthenticationSuccessHandler myAuthenticationSuccessHandler;
     @Autowired
@@ -50,9 +54,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
         tokenRepository.setDataSource(dataSource);
         //数据库不存在的时候需要下面这句代码
-        //tokenRepository.setCreateTableOnStartup(true);
+       // tokenRepository.setCreateTableOnStartup(true);
         return tokenRepository;
     }
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(customUserDetailsService).passwordEncoder(new BCryptPasswordEncoder());
@@ -64,19 +69,23 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         validateCodeFilter.setMyAuthenticationFailureHandler(myAuthenticationFailureHandler);
         SmsCodeFilter smsCodeFilter = new SmsCodeFilter();
         smsCodeFilter.setMyAuthenticationFailureHandler(myAuthenticationFailureHandler);
+
+        http.addFilterBefore(corsControllerFilter, SecurityContextPersistenceFilter.class);
+
         http.addFilterBefore(validateCodeFilter,UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(smsCodeFilter,UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
+                .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 // 如果有允许匿名的url，填在下面
-                .antMatchers("/code/**","/loginByMobile.html","/register","/swagger-ui.html").permitAll()
+                .antMatchers("/code/**","/register","/swagger-ui.html","/order/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 // 设置登陆页
                 .formLogin()//表单登录 .httpBasic是另一种登录方式
-                    .loginPage("/loginPage")
+              //      .loginPage("/loginPage")
                     .loginProcessingUrl("/authentication/login")//form表单提交的路径，默认是'/login'
-                   // .defaultSuccessUrl("/loginQuery")// 设置登陆成功页
-                  //  .failureUrl("/login/error")
+//                    .successForwardUrl("/login/success")
+//                    .failureUrl("/login/error")
                     .successHandler(myAuthenticationSuccessHandler)//返回的是json串
                     .failureHandler(myAuthenticationFailureHandler)
                     .permitAll()

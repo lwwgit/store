@@ -5,10 +5,9 @@ import com.cloud.store.domain.entity.SysUser;
 import com.cloud.store.domain.entity.UserInfo;
 import com.cloud.store.service.RegisterService;
 import com.cloud.store.service.UserService;
-import com.cloud.store.service.impl.RegisterServiceImpl;
-import com.cloud.store.service.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,6 +18,7 @@ import java.util.Date;
  * @Date Create in 13:59 2018/6/29
  * @Description: 用户注册
  */
+@CrossOrigin
 @RestController
 public class RegisterController {
     @Autowired
@@ -33,6 +33,7 @@ public class RegisterController {
      * @Description: 判断用户名和手机号是否已存在
      */
     @PostMapping("/register")
+    @CrossOrigin
     public Msg<?> UserRegister(SysUser user){
         UserInfo userInfo = new UserInfo();
         int i = registerService.usernameIsExist(user.getUsername());
